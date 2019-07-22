@@ -4,13 +4,29 @@ using UnityEngine;
 
 public class Path
 {
-    public List<Vector2Int> fullPath = new List<Vector2Int>();
+    public List<Tile> fullPath = new List<Tile>();
+    public int currentPos;
 
-    public void AddPath(Vector2Int v)
+    public void AddPath(Tile t)
     {
-        fullPath.Add(v);
+        fullPath.Add(t);
     }
 
+    public void ActualPath()
+    {
+        fullPath.Reverse();
+        currentPos = 0;
+    }
+
+    public bool NextPosition()
+    {
+        if (currentPos >= fullPath.Count - 1)
+            return true;
+
+        currentPos++;
+        return false;
+
+    }
 }
 
 public class PathPart

@@ -9,11 +9,11 @@ public class Tile : MonoBehaviour
     [SerializeField]
     //private GameObject item;
     private List<Tile> neighbours;
-    private int heuristic;
-    public int G;
-    public int F;
+    private int heuristic = 0;
+    private int g = 0;
+    private int f = 0;
+    private Tile parent;
 
-    public Tile previous;
     void Start()
     {
         
@@ -25,7 +25,10 @@ public class Tile : MonoBehaviour
 
     }
 
-    public int CurrentHeuristic {  get { return heuristic; } }
+    public int H { get { return heuristic; } }
+    public int G { get { return g; } }
+    public int F { get { return f; } }
+    public Tile Parent { get { return parent; } }
 
     public List<Tile> Neighbours { get { return neighbours; } }
 
@@ -62,8 +65,16 @@ public class Tile : MonoBehaviour
     {
         this.heuristic = h;
     }
-    public void SetHeuristicsOnParent(Tile parent, int deltaH)
+    public void SetParent(Tile parent)
     {
-        this.heuristic = parent.heuristic + deltaH;
+        this.g = parent.g + tile.terrainDifficulty;
+        this.f = g + heuristic;
+        this.parent = parent;
     }
+    public void Clear()
+    {
+        this.g = 0;
+        this.parent = null;
+    }
+
 }

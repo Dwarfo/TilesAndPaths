@@ -25,12 +25,6 @@ public class TileField : Singleton_MB<TileField>
         DrawTiles(tipowoi);
         SetNeighbours();
         //GraphLine();
-        string neighboursStr = "";
-        foreach (var n in vectorsToTiles[new Vector2Int(0,1)].Neighbours)
-        {
-            neighboursStr += n.Index + " ";
-        }
-        Debug.Log("Tile " + vectorsToTiles[new Vector2Int(0, 1)].Index + " has neighbours: " + neighboursStr + " length " + vectorsToTiles[new Vector2Int(0, 1)].Neighbours.Count);
     }
 
 
@@ -41,6 +35,11 @@ public class TileField : Singleton_MB<TileField>
     }
     public Path GetPath(Vector2Int start, Vector2Int toGo)
     {
+        if (!vectorsToTiles.ContainsKey(toGo))
+            return null;
+        if (vectorsToTiles[toGo].tile.impassible)
+            return null;
+
         CalculateHeuristics(vectorsToTiles[toGo]);
         Debug.Log("Outside: " + vectorsToTiles[toGo].gameObject.name + "  Num of neighbours: " + vectorsToTiles[toGo].Neighbours.Count);
         return CreatePath(vectorsToTiles[start], vectorsToTiles[toGo]);
@@ -78,7 +77,6 @@ public class TileField : Singleton_MB<TileField>
 
     public void DrawTiles(TileTypes[][] tiles)
     {
-        List<Tile> allTiles = new List<Tile>();
         vectorsToTiles = new Dictionary<Vector2Int, Tile>();
 
         for (int i = 0; i < tiles.Length; i++)
@@ -88,7 +86,6 @@ public class TileField : Singleton_MB<TileField>
                 if ((int)tiles[i][j] != -1)
                 {
                     var newTile = MakeTile(i, j, (int)tiles[i][j]);
-                    allTiles.Add(newTile);
                     vectorsToTiles.Add(newTile.Index, newTile);
                 }
             }
@@ -101,6 +98,7 @@ public class TileField : Singleton_MB<TileField>
         {
             t.Neighbours.Clear();
         }
+
         HashSet<Tile> tilesToCheck = new HashSet<Tile>();
         HashSet<Tile> newToCheck = new HashSet<Tile>();
         HashSet<Vector2Int> ignore = new HashSet<Vector2Int>();
@@ -121,6 +119,8 @@ public class TileField : Singleton_MB<TileField>
     {
         Vector2Int[] neighbourIndexes = new Vector2Int[] { ind + new Vector2Int(0, 1) , ind + new Vector2Int(0, -1) ,
                 ind + new Vector2Int(-1, 0), ind + new Vector2Int(1, 0)};
+
+        //Diagonal Indexes
         Tile neighbour;
 
 
@@ -139,10 +139,6 @@ public class TileField : Singleton_MB<TileField>
         }
 
         ignore.Add(centerTile.Index);
-    }
-    private void ChooseTileType()
-    {
-
     }
 
     private void AssignTileTypes()
@@ -163,7 +159,7 @@ public class TileField : Singleton_MB<TileField>
         return tileScript;
     }
 
-    private void GraphLine()
+    private void WriteDebugNeighbours()
     {
         foreach (var tile in vectorsToTiles.Keys)
         {
@@ -188,25 +184,21 @@ public class TileField : Singleton_MB<TileField>
         foreach (var tile in vectorsToTiles.Keys)
         {
             vectorsToTiles[tile].CountHeuristics(start);
-            //Debug.Log(tile.gameObject.name + " " + tile.CurrentHeuristic);
         }
     }
 
     private Path CreatePath(Tile start, Tile end)
     {
         Path path = new Path();
-        int iterations = 0;
         List<Tile> toCheck = new List<Tile>();
         HashSet<Tile> ignore = new HashSet<Tile>();
 
+        foreach (var tile in vectorsToTiles.Values)
+            tile.Clear();
+
         Tile currentTile = start;
-        start.G = 0;
-        start.F = start.G + start.CurrentHeuristic;
-
         toCheck.Add(currentTile);
-        Debug.Log("Inside: " + start.gameObject.name + "  Num of neighbours: " + start.Neighbours.Count);
 
-        
         while (toCheck.Count != 0)
         {
             currentTile = GetTileWithLowestF(toCheck);
@@ -215,7 +207,6 @@ public class TileField : Singleton_MB<TileField>
 
             toCheck.Remove(currentTile);
             ignore.Add(currentTile);
-            Debug.Log("Num of neighbours: " + currentTile.Neighbours.Count);
 
             foreach (var neighbour in CheckNeighboursPath(currentTile))
             {
@@ -224,15 +215,11 @@ public class TileField : Singleton_MB<TileField>
                     if (!toCheck.Contains(neighbour))
                     {
                         toCheck.Add(neighbour);
-                        neighbour.G = currentTile.G + neighbour.tile.terrainDifficulty;
-                        neighbour.F = neighbour.G + neighbour.CurrentHeuristic;
-                        neighbour.previous = currentTile;
+                        neighbour.SetParent(currentTile);
                     }
                     else if(currentTile.G + neighbour.tile.terrainDifficulty < neighbour.G)
                     {
-                        neighbour.G = currentTile.G + neighbour.tile.terrainDifficulty;
-                        neighbour.F = neighbour.G + neighbour.CurrentHeuristic;
-                        neighbour.previous = currentTile;
+                        neighbour.SetParent(currentTile);
                     }
                 }
             }
@@ -241,11 +228,11 @@ public class TileField : Singleton_MB<TileField>
 
         while (currentTile != start)
         {
-            path.AddPath(currentTile.Index);
-            currentTile = currentTile.previous;
+            path.AddPath(currentTile);
+            currentTile = currentTile.Parent;
         }
-        
-        Debug.Log("Length: " + path.fullPath.Count);
+        path.AddPath(currentTile);
+        path.ActualPath();
         return path;
     }
 
@@ -254,7 +241,6 @@ public class TileField : Singleton_MB<TileField>
         List<Tile> validNeighbours = new List<Tile>();
         foreach (Tile neighbour in tile.Neighbours)
         {
-            Debug.Log(neighbour.Index);
             if (!neighbour.tile.impassible)
             {
                 validNeighbours.Add(neighbour);
