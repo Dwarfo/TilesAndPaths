@@ -8,8 +8,10 @@ public class Path
     public int currentPos = 0;
 
 
-    public Tile Destination { get {return fullPath[fullPath.Count - 1];}}
-    public Tile CurrentTile { get {return fullPath[currentPath];}}
+    public Tile Destination { get { return fullPath[fullPath.Count - 1]; } }
+    public Tile CurrentTile { get { return fullPath[currentPos]; } }
+    public Tile Start { get { return fullPath[0]; } }
+
 
     public void AddPath(Tile t)
     {
@@ -24,7 +26,7 @@ public class Path
 
     public bool NextPosition()
     {
-        if (currentPos >= fullPath.Count - 1)
+        if (currentPos == fullPath.Count - 1)
         {
             return true;
         }

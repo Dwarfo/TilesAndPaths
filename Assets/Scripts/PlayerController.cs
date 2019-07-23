@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        path = new Path();
         if (lr == null)
             lr = GetComponentInChildren<LineRenderer>();
     }
@@ -24,12 +23,21 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if(path != null && path.Destination.Index == IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+            if (path != null)
+            {
+                if (path.Destination.Index == IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
                 {
                     nextTile = path.CurrentTile;
                     move = true;
                     return;
                 }
+                else
+                {
+                    path = TileField.Instance.GetPath(IndexOfPosition(transform.position),
+                    IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
+                    DrawLine(path);
+                }
+            }
             else
             {
                 path = TileField.Instance.GetPath(IndexOfPosition(transform.position),
@@ -41,8 +49,6 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            path = null;
-            //nextTile = null;
             move = false;
             ClearLine();
         }
@@ -50,13 +56,13 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(2))
             Debug.Log("Pressed middle click.");
 
-        if (Input.GeKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             move = !move;
             //stop moving but not clear a path
         }
 
-        Move(nextTile, move);
+        Move(path, move);
     }
 
     private void DrawLine(Path path)
@@ -93,33 +99,37 @@ public class PlayerController : MonoBehaviour
         return new Vector2Int(Mathf.FloorToInt(mp.x + pixelsOffset), Mathf.FloorToInt(mp.y + pixelsOffset));
     }
 
-    private void Move(Tile nextTile, bool move)
+    private void Move(Path path, bool move)
     {
-        if(nextTile == null)
+        if(path == null)
             return;
+            
 
-        if(MoveToTile(nextTile) && move);
+        if (MoveToTile(path.CurrentTile) && move)
         {
-            if(CurrentTile == path.Destination)
+            if (path.CurrentTile == path.Destination)
             {
-                path = null;
-                nextTile = null;
+                this.path = null;
                 move = false;
                 return;
             }
             path.NextPosition();
-            nextTile = path.CurrentTile;
-        }
-        else if (MoveToTile(nextTile) && path == null)
+        }/*
+        else if (MoveToTile(path.CurrentTile) && !move)
         {
-            nextTile = null;
-        }
+            if (path.CurrentTile != path.Start)
+            {
+                Debug.Log("Nakasikasukasena");
+                this.path = null;
+            }
+        }*/
+
     }
 
     private bool MoveToTile(Tile tile)
     {
         transform.position = Vector2.MoveTowards(transform.position, tile.Index, speed);
-        return (Vector2.Distance(transform.position, nextTile.Index) == 0);
+        return (Vector2.Distance(transform.position, tile.Index) == 0);
     }
 
     public void ClearPath()
