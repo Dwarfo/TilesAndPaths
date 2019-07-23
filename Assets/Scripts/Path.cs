@@ -5,7 +5,11 @@ using UnityEngine;
 public class Path
 {
     public List<Tile> fullPath = new List<Tile>();
-    public int currentPos;
+    public int currentPos = 0;
+
+
+    public Tile Destination { get {return fullPath[fullPath.Count - 1];}}
+    public Tile CurrentTile { get {return fullPath[currentPath];}}
 
     public void AddPath(Tile t)
     {
@@ -21,11 +25,17 @@ public class Path
     public bool NextPosition()
     {
         if (currentPos >= fullPath.Count - 1)
+        {
             return true;
+        }
 
         currentPos++;
         return false;
+    }
 
+    public void ClearPath()
+    {
+        fullPath.Clear();
     }
 }
 

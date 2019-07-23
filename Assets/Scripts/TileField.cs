@@ -20,10 +20,10 @@ public class TileField : Singleton_MB<TileField>
         tilesPlanar = new TileTypes[xSize, ySize];
         intToTileTypes = new Dictionary<int, TileSO>();
 
-        AddTilesToDict();
-        DebugStructs();
-        DrawTiles(tipowoi);
-        SetNeighbours();
+        AddTilesToDict(); //Adding tiletypes to dictionary for generating map
+        DebugStructs(); // populating test tilemap tipowoi with int values of tiles
+        DrawTiles(tipowoi); // drawing and instantiating tiles by tipowoi structure
+        SetNeighbours(); // creating a graph structure by assigning neighbours
         //GraphLine();
     }
 

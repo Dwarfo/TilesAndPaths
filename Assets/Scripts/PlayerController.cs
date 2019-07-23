@@ -11,12 +11,11 @@ public class PlayerController : MonoBehaviour
     private Path path;
     [SerializeField]
     private bool move;
-    private Movement movement;
-    private IEnumerator makeMove;
     private Tile nextTile;
 
     void Start()
     {
+        path = new Path();
         if (lr == null)
             lr = GetComponentInChildren<LineRenderer>();
     }
@@ -25,17 +24,25 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            path = TileField.Instance.GetPath(IndexOfPosition(transform.position), IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
-            if (nextTile != null)
-                move = true;
-            nextTile = path.fullPath[0];
-            DrawLine(path);
+            if(path != null && path.Destination.Index == IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
+                {
+                    nextTile = path.CurrentTile;
+                    move = true;
+                    return;
+                }
+            else
+            {
+                path = TileField.Instance.GetPath(IndexOfPosition(transform.position),
+                IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
+                DrawLine(path);
+                move = false;
+            }
         }
 
         if (Input.GetMouseButtonDown(1))
         {
             path = null;
-            nextTile = null;
+            //nextTile = null;
             move = false;
             ClearLine();
         }
@@ -43,7 +50,13 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(2))
             Debug.Log("Pressed middle click.");
 
-        Move(nextTile);
+        if (Input.GeKeyDown(KeyCode.Space))
+        {
+            move = !move;
+            //stop moving but not clear a path
+        }
+
+        Move(nextTile, move);
     }
 
     private void DrawLine(Path path)
@@ -80,32 +93,39 @@ public class PlayerController : MonoBehaviour
         return new Vector2Int(Mathf.FloorToInt(mp.x + pixelsOffset), Mathf.FloorToInt(mp.y + pixelsOffset));
     }
 
-    private void Move(Tile nextTile)
+    private void Move(Tile nextTile, bool move)
     {
-        if (nextTile == null)
+        if(nextTile == null)
             return;
 
-        MoveToTile(nextTile);
-
-        
-    }
-
-    private void MoveToTile(Tile tile)
-    {
-        Debug.Log("Pos: " + transform.position);
-        Debug.Log("Index: " + tile.Index);
-        transform.position = Vector2.MoveTowards(transform.position, tile.Index, speed);
-        if (Vector2.Distance(transform.position, nextTile.Index) == 0)
+        if(MoveToTile(nextTile) && move);
         {
-            if (move)
+            if(CurrentTile == path.Destination)
             {
-                if (path.NextPosition())
-                    move = false;
-                nextTile = path.fullPath[path.currentPos];
+                path = null;
+                nextTile = null;
+                move = false;
+                return;
             }
+            path.NextPosition();
+            nextTile = path.CurrentTile;
+        }
+        else if (MoveToTile(nextTile) && path == null)
+        {
+            nextTile = null;
         }
     }
 
+    private bool MoveToTile(Tile tile)
+    {
+        transform.position = Vector2.MoveTowards(transform.position, tile.Index, speed);
+        return (Vector2.Distance(transform.position, nextTile.Index) == 0);
+    }
+
+    public void ClearPath()
+    {
+        this.path = null;
+    }
 }
 
-public delegate bool Movement(Tile start, Tile end);
+public delegate bool Movement(Tile end);
