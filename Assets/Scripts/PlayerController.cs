@@ -5,18 +5,18 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float pixelsOffset;
-    public LineRenderer lr;
     public float speed;
 
     private Path path;
     [SerializeField]
     private bool move;
+    private bool paused;
     private Tile nextTile;
+    private LineDrawer lineDrawer;
 
     void Start()
     {
-        if (lr == null)
-            lr = GetComponentInChildren<LineRenderer>();
+
     }
 
     void Update()
@@ -35,14 +35,15 @@ public class PlayerController : MonoBehaviour
                 {
                     path = TileField.Instance.GetPath(IndexOfPosition(transform.position),
                     IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
-                    DrawLine(path);
+                    lineDrawer.DrawLine(path);
+                    move = false;
                 }
             }
             else
             {
                 path = TileField.Instance.GetPath(IndexOfPosition(transform.position),
                 IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
-                DrawLine(path);
+                lineDrawer.DrawLine(path);
                 move = false;
             }
         }
@@ -50,6 +51,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             move = false;
+            nextTile = path.CurrentTile;
             ClearLine();
         }
 
@@ -58,40 +60,11 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            move = !move;
+            paused = !paused;
             //stop moving but not clear a path
         }
 
         Move(path, move);
-    }
-
-    private void DrawLine(Path path)
-    {
-        if (path == null)
-            return;
-
-        lr.startWidth = 0.2f;
-        lr.endWidth = 0.2f;
-        lr.positionCount = path.fullPath.Count;
-        lr.startColor = Color.cyan;
-        lr.endColor = Color.cyan;
-        Tile[] vec = path.fullPath.ToArray();
-        List<Vector3> v2 = new List<Vector3>();
-        for(int i = 0; i < vec.Length; i++)
-            v2.Add((Vector2)vec[i].Index);
-
-        lr.SetPositions(v2.ToArray());
-
-        foreach (var pp in path.fullPath)
-        {
-            Debug.Log(pp);
-        }
-
-    }
-
-    private void ClearLine()
-    {
-        lr.positionCount = 0;
     }
 
     private Vector2Int IndexOfPosition(Vector3 mp)
@@ -103,26 +76,26 @@ public class PlayerController : MonoBehaviour
     {
         if(path == null)
             return;
-            
-
-        if (MoveToTile(path.CurrentTile) && move)
+        
+        if(MoveToTile(path.CurrentTile))
         {
-            if (path.CurrentTile == path.Destination)
-            {
-                this.path = null;
-                move = false;
+            if(path.CurrentTile == path.Start && !move)
                 return;
-            }
-            path.NextPosition();
-        }/*
-        else if (MoveToTile(path.CurrentTile) && !move)
-        {
-            if (path.CurrentTile != path.Start)
+
+            if(!move || path.CurrentTile == path.Destination)
             {
-                Debug.Log("Nakasikasukasena");
-                this.path = null;
+                ClearPath();
+                lineDrawer.ClearLine();
             }
-        }*/
+            else if(paused)
+            {
+                
+            }
+            else
+            {
+                path.NextPosition();
+            }
+        }
 
     }
 
