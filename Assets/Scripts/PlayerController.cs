@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviour
     private bool move;
     private bool paused;
     private Tile nextTile;
-    [SerializeField]
     private LineDrawer lineDrawer;
 
     void Start()
@@ -53,7 +52,7 @@ public class PlayerController : MonoBehaviour
         {
             move = false;
             nextTile = path.CurrentTile;
-            lineDrawer.ClearLine();
+            ClearLine();
         }
 
         if (Input.GetMouseButtonDown(2))
@@ -85,7 +84,6 @@ public class PlayerController : MonoBehaviour
 
             if(!move || path.CurrentTile == path.Destination)
             {
-                paused = false;
                 ClearPath();
                 lineDrawer.ClearLine();
             }
@@ -96,7 +94,6 @@ public class PlayerController : MonoBehaviour
             else
             {
                 path.NextPosition();
-                lineDrawer.DrawLine(path);
             }
         }
 

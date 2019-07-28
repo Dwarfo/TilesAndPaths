@@ -297,9 +297,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pixelsOffset: 0.5
+  lr: {fileID: 629893594}
   speed: 0.05
   move: 0
-  lineDrawer: {fileID: 629893595}
 --- !u!1 &629893592
 GameObject:
   m_ObjectHideFlags: 0
@@ -310,7 +310,6 @@ GameObject:
   m_Component:
   - component: {fileID: 629893593}
   - component: {fileID: 629893594}
-  - component: {fileID: 629893595}
   m_Layer: 0
   m_Name: Line
   m_TagString: Untagged
@@ -427,19 +426,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &629893595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 629893592}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21b274dbdd9d9684f8efc8d8d36c2234, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lr: {fileID: 629893594}
 --- !u!1 &1095680721
 GameObject:
   m_ObjectHideFlags: 0

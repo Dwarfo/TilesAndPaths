@@ -11,14 +11,14 @@ public class CharacterMovement : MonoBehaviour
     private bool pause;
 
 
-    /*public void Act()
+    public void Act()
     {
         if(tranToState.TryGetValue(currentState.Action(), out currentState))
         {
             Debug.Log("Transition to State " + currentState.name + " occured");
         }
         
-    }*/
+    }
 
 }
 
@@ -27,7 +27,7 @@ public class State
     private string name;
     public string Name{ get { return name;}}
 
-    //public abstract Transition Action();
+    public abstract Transition Action();
     
 }
 
