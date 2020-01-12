@@ -7,34 +7,37 @@ public class PlayerController : MonoBehaviour
     public float pixelsOffset;
     public float speed;
 
-    private Path path;
+    public Path path;
     [SerializeField]
     private bool move;
+    [SerializeField]
     private bool paused;
     private Tile nextTile;
+    [SerializeField]
     private LineDrawer lineDrawer;
+    private PlayerMovementFSM stateMachine;
 
     void Start()
     {
-
+        stateMachine = new PlayerMovementFSM();
+        stateMachine.playerTransform = transform;
     }
 
     void Update()
     {
+        stateMachine.Tick();
         if (Input.GetMouseButtonDown(0))
         {
             if (path != null)
             {
                 if (path.Destination.Index == IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)))
                 {
-                    nextTile = path.CurrentTile;
-                    move = true;
-                    return;
+                    stateMachine.currentPath = path;
                 }
                 else
                 {
                     path = TileField.Instance.GetPath(IndexOfPosition(transform.position),
-                    IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
+                        IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
                     lineDrawer.DrawLine(path);
                     move = false;
                 }
@@ -42,7 +45,7 @@ public class PlayerController : MonoBehaviour
             else
             {
                 path = TileField.Instance.GetPath(IndexOfPosition(transform.position),
-                IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
+                    IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
                 lineDrawer.DrawLine(path);
                 move = false;
             }
@@ -50,9 +53,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            move = false;
-            nextTile = path.CurrentTile;
-            ClearLine();
+            //lineDrawer.ClearLine();
         }
 
         if (Input.GetMouseButtonDown(2))
@@ -60,11 +61,8 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            paused = !paused;
-            //stop moving but not clear a path
-        }
 
-        Move(path, move);
+        }
     }
 
     private Vector2Int IndexOfPosition(Vector3 mp)
@@ -86,6 +84,7 @@ public class PlayerController : MonoBehaviour
             {
                 ClearPath();
                 lineDrawer.ClearLine();
+                paused = false;
             }
             else if(paused)
             {
@@ -94,6 +93,7 @@ public class PlayerController : MonoBehaviour
             else
             {
                 path.NextPosition();
+                lineDrawer.DrawLine(path);
             }
         }
 
