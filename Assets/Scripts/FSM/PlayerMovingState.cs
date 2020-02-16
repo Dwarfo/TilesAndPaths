@@ -18,7 +18,7 @@ public class PlayerMovingState : AbstractState
         movementPaused = false;
     }
 
-    public override void GoToNextTile(PlayerMovementFSM pc)
+    private void GoToNextTile(PlayerMovementFSM pc)
     {
         if (MoveToTile(currentPath.CurrentTile, pc.playerTransform))
         {
@@ -29,38 +29,43 @@ public class PlayerMovingState : AbstractState
             else if (movementPaused)
             {
                 pc.TransitionToState(pc.paused);
-                //lineDrawer.DrawLine(path); TODO fire event for linedrawer
+                pc.ChangePath(null);
             }
             else
             {
                 currentPath.NextPosition();
+                pc.ChangePath(null);
             }
         }
     }
 
-    public override void PauseMovement(PlayerMovementFSM pc)
+    //TODO: move pause movement to context
+    private void PauseMovement()
     {
-
+        movementPaused = !movementPaused;
     }
 
-    public override void ProcessInput(PlayerMovementFSM pc)
+    public override void ProcessInput(PlayerMovementFSM pc, PlayerMovementFSM.Inputs input)
     {
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(1))
+        if (input == PlayerMovementFSM.Inputs.SpaceBar || input == PlayerMovementFSM.Inputs.RightMouseClick)
         {
-            movementPaused = !movementPaused;
+            PauseMovement();
         }
+    }
 
+    public override void Tick(PlayerMovementFSM pc)
+    {
         GoToNextTile(pc);
     }
 
-    public override void StartMoving(PlayerMovementFSM pc)
-    {
-
+    private bool MoveToTile(Tile tile, Transform transform)
+    {   //TODO change static value for Speed
+        transform.position = Vector2.MoveTowards(transform.position, tile.Index, GameManager.Instance.playerSpeed);
+        return (Vector2.Distance(transform.position, tile.Index) == 0);
     }
 
-    private bool MoveToTile(Tile tile, Transform transform)
-    {   //TODO change static value to Speed
-        transform.position = Vector2.MoveTowards(transform.position, tile.Index, 0.05f);
-        return (Vector2.Distance(transform.position, tile.Index) == 0);
+    public override void SetPath(PlayerMovementFSM pc, Vector2 startIndex, Vector2 endIndex)
+    {
+
     }
 }

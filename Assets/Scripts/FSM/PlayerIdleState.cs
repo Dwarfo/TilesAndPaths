@@ -11,28 +11,41 @@ public class PlayerIdleState : AbstractState
 
     public override void EnterState(PlayerMovementFSM pc)
     {
- 
+        pc.ClearPath();
     }
 
-    public override void GoToNextTile(PlayerMovementFSM pc)
+    public override void ProcessInput(PlayerMovementFSM pc, PlayerMovementFSM.Inputs input)
     {
-
+        if (input == PlayerMovementFSM.Inputs.RightMouseClick) 
+        {
+            pc.ClearPath();
+        }
+        /*if (pc.currentPath != null)
+            pc.TransitionToState(pc.moving);*/
     }
 
-    public override void PauseMovement(PlayerMovementFSM pc)
+    public override void SetPath(PlayerMovementFSM pc, Vector2 startIndex, Vector2 endIndex)
     {
-
-    }
-
-    public override void ProcessInput(PlayerMovementFSM pc)
-    {
-        Debug.Log("Idle");
         if (pc.currentPath != null)
-            StartMoving(pc);
+        {
+            if (pc.currentPath.Destination.Index == endIndex)
+            {
+                pc.TransitionToState(pc.moving);
+            }
+            else
+            {
+                pc.ChangePath(TileField.Instance.GetPath(startIndex.ToInt2(), endIndex.ToInt2()));
+            }
+        }
+        else
+        {
+            pc.ChangePath(TileField.Instance.GetPath(startIndex.ToInt2(), endIndex.ToInt2()));
+        }
+
     }
 
-    public override void StartMoving(PlayerMovementFSM pc)
+    public override void Tick(PlayerMovementFSM pc)
     {
-        pc.TransitionToState(pc.moving);
+
     }
 }

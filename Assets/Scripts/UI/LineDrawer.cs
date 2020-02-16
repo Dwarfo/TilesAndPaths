@@ -14,8 +14,12 @@ public class LineDrawer : MonoBehaviour
 
     public void DrawLine(Path path)
     {
-        if (path == null)
+        if (path == null) 
+        {
+            ClearLine();
             return;
+        }
+            
 
         lr.startWidth = 0.2f;
         lr.endWidth = 0.2f;
