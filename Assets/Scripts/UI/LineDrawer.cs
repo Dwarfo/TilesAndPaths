@@ -35,7 +35,7 @@ public class LineDrawer : MonoBehaviour
 
         foreach (var pp in path.fullPath)
         {
-            Debug.Log(pp);
+            //Debug.Log(pp);
         }
 
     }

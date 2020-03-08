@@ -13,10 +13,10 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Pickables
+  - Enemies
+  - Background
   - 
   - 
   - 
@@ -46,4 +46,10 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 2967350031
+    locked: 0
+  - name: Enemies
+    uniqueID: 3868015111
+    locked: 0
+  - name: Items
+    uniqueID: 2780105723
     locked: 0

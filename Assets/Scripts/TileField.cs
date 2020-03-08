@@ -10,12 +10,24 @@ public class TileField : Singleton_MB<TileField>
     public int xSize;
     public int ySize;
     public GameObject tilePrefab;
+    public float pixelsOffset;
 
     private TileTypes[][] tipowoi;
     private Dictionary<int, TileSO> intToTileTypes;
     private Dictionary<Vector2Int, Tile> vectorsToTiles;
 
     void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+
+    public void Process() 
     {
         tilesPlanar = new TileTypes[xSize, ySize];
         intToTileTypes = new Dictionary<int, TileSO>();
@@ -27,12 +39,6 @@ public class TileField : Singleton_MB<TileField>
         //GraphLine();
     }
 
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     public Path GetPath(Vector2Int start, Vector2Int toGo)
     {
         if (!vectorsToTiles.ContainsKey(toGo))
@@ -90,6 +96,16 @@ public class TileField : Singleton_MB<TileField>
                 }
             }
         }
+    }
+
+    public Tile GetTileByIndex(Vector2Int positionIndex) 
+    {
+        if (vectorsToTiles.ContainsKey(positionIndex))
+        {
+            return vectorsToTiles[positionIndex];
+        }
+        else
+            return null;
     }
 
     private void SetNeighbours()
@@ -261,5 +277,10 @@ public class TileField : Singleton_MB<TileField>
         );
 
         return tiles[0];
+    }
+
+    public Vector2Int IndexOfPosition(Vector3 mp)
+    {
+        return new Vector2Int(Mathf.FloorToInt(mp.x + pixelsOffset), Mathf.FloorToInt(mp.y + pixelsOffset));
     }
 }

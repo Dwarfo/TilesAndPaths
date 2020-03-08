@@ -39,6 +39,11 @@ public class Path
     {
         fullPath.Clear();
     }
+
+    public Tile GetCurrentTile() 
+    {
+        return fullPath[currentPos];
+    }
 }
 
 public class PathPart

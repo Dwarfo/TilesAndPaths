@@ -24,6 +24,7 @@ public class PlayerMovingState : AbstractState
         {
             if (currentPath.CurrentTile == currentPath.Destination)
             {
+                pc.EndPath(currentPath);
                 pc.TransitionToState(pc.idle);
             }
             else if (movementPaused)
@@ -39,7 +40,6 @@ public class PlayerMovingState : AbstractState
         }
     }
 
-    //TODO: move pause movement to context
     private void PauseMovement()
     {
         movementPaused = !movementPaused;

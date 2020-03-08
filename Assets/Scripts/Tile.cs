@@ -5,14 +5,18 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     public TileSO tile;
+    public bool invalid = false;
+
     private Vector2Int index;
     [SerializeField]
-    //private GameObject item;
     private List<Tile> neighbours;
     private int heuristic = 0;
     private int g = 0;
     private int f = 0;
     private Tile parent;
+    [SerializeField]
+    public IPickable item;
+    
 
     void Start()
     {
@@ -39,6 +43,7 @@ public class Tile : MonoBehaviour
         this.tile = tileSO;
         neighbours = new List<Tile>();
         GetComponent<SpriteRenderer>().sprite = tileSO.tileImage;
+        GetComponent<SpriteRenderer>().sortingLayerName = "Terrain";
     }
 
     public void SetIndex(int x, int y)
@@ -77,4 +82,15 @@ public class Tile : MonoBehaviour
         this.parent = null;
     }
 
+    public void SetPickable(IPickable newItem) 
+    {
+        item = newItem;
+    }
+
+    public IPickable GetPickable() 
+    {
+        if (item == null)
+            return null;
+        return item;
+    }
 }

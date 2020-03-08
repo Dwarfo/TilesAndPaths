@@ -12,7 +12,8 @@ public class PlayerMovementFSM
     public PlayerPausedState    paused  = new PlayerPausedState();
     public PlayerIdleState      idle    = new PlayerIdleState();
 
-    public PathEvent pathChanged = new PathEvent();
+    public PathEvent pathChanged    = new PathEvent();
+    public PathEvent pathEnded      = new PathEvent();
 
     public PlayerMovementFSM()
     {
@@ -50,6 +51,11 @@ public class PlayerMovementFSM
             currentPath = path;
 
         pathChanged.Invoke(currentPath);
+    }
+
+    public void EndPath(Path path) 
+    {
+        pathEnded.Invoke(currentPath);
     }
 
     public void ClearPath() 

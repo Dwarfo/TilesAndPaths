@@ -4,21 +4,23 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float pixelsOffset;
     public float speed;
 
     public Path path;
+    public InventoryController ic;
+    public PlayerMovementFSM stateMachine;
     [SerializeField]
     private bool paused;
     private Tile nextTile;
     [SerializeField]
     private LineDrawer lineDrawer;
-    private PlayerMovementFSM stateMachine;
+    public string entityName = "Player";
 
     void Start()
     {
         stateMachine = new PlayerMovementFSM();
         stateMachine.playerTransform = transform;
+        ic = gameObject.GetComponent<InventoryController>();
 
         GameManager.Instance.PlayerReady(this);
     }
@@ -28,7 +30,7 @@ public class PlayerController : MonoBehaviour
         stateMachine.Tick();
         if (Input.GetMouseButtonDown(0))
         {
-            stateMachine.SetPath(IndexOfPosition(transform.position), IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
+            stateMachine.SetPath(TileField.Instance.IndexOfPosition(transform.position), TileField.Instance.IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
             stateMachine.ProcessInput(PlayerMovementFSM.Inputs.LeftMouseClick);
 
             return;
@@ -56,20 +58,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private Vector2Int IndexOfPosition(Vector3 mp)
-    {
-        return new Vector2Int(Mathf.FloorToInt(mp.x + pixelsOffset), Mathf.FloorToInt(mp.y + pixelsOffset));
-    }
-
-
     public void ClearPath()
     {
         this.path = null;
     }
 
-    public PathEvent getPathEvent() 
+    public PathEvent getPathChangedEvent()
     {
         return stateMachine.pathChanged;
+    }
+
+    public PathEvent getPathEndedEvent()
+    {
+        return stateMachine.pathEnded;
     }
 }
 
