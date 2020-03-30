@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class Path
 {
-    public List<Tile> fullPath = new List<Tile>();
-    public int currentPos = 0;
-
+    public List<Tile> fullPath;
+    public int currentPos;
 
     public Tile Destination { get { return fullPath[fullPath.Count - 1]; } }
     public Tile CurrentTile { get { return fullPath[currentPos]; } }
     public Tile Start { get { return fullPath[0]; } }
 
-
+    public Path() 
+    {
+        fullPath = new List<Tile>();
+        currentPos = 0;
+    }
+    
     public void AddPath(Tile t)
     {
         fullPath.Add(t);

@@ -50,6 +50,9 @@ TagManager:
   - name: Enemies
     uniqueID: 3868015111
     locked: 0
+  - name: LinesAndDebugGFX
+    uniqueID: 408065957
+    locked: 0
   - name: Items
     uniqueID: 2780105723
     locked: 0

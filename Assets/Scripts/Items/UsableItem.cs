@@ -10,7 +10,7 @@ public class UsableItem : MonoBehaviour, IUsable, IPickable
 
     private void Start()
     {
-        GetComponent<SpriteRenderer>().sprite = item.pickableSprite;
+        GetComponent<SpriteRenderer>().sprite           = item.pickableSprite;
         GetComponent<SpriteRenderer>().sortingLayerName = "Items";
         //ToRemove
         //placeInTile(testPositionIndex);

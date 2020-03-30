@@ -9,8 +9,9 @@ public class TileField : Singleton_MB<TileField>
     TileTypes[,] tilesPlanar;
     public int xSize;
     public int ySize;
+    public float tileSize;
     public GameObject tilePrefab;
-    public float pixelsOffset;
+    public float pixelsOffset; // Offset to make sure index is counted based on center of each tile
 
     private TileTypes[][] tipowoi;
     private Dictionary<int, TileSO> intToTileTypes;
@@ -91,7 +92,7 @@ public class TileField : Singleton_MB<TileField>
             {
                 if ((int)tiles[i][j] != -1)
                 {
-                    var newTile = MakeTile(i, j, (int)tiles[i][j]);
+                    var newTile = MakeTile(i, j, (int)tiles[i][j], transform);
                     vectorsToTiles.Add(newTile.Index, newTile);
                 }
             }
@@ -165,11 +166,12 @@ public class TileField : Singleton_MB<TileField>
         }
     }
 
-    private Tile MakeTile(int i, int j, int tileInd)
+    private Tile MakeTile(int i, int j, int tileInd, Transform generatorGo)
     {
         GameObject tile = Instantiate(tilePrefab);
+        tile.transform.SetParent(generatorGo);
         Tile tileScript = tile.GetComponent<Tile>();
-        tileScript.AssignTileData(intToTileTypes[tileInd]);
+        tileScript.AssignTileData(intToTileTypes[tileInd], tileSize);
         tileScript.SetIndex(i, j);
         tile.name = "Tile" + tileScript.Index;
         return tileScript;

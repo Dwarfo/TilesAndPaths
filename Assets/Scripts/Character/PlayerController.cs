@@ -6,14 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     public float speed;
 
-    public Path path;
     public InventoryController ic;
     public PlayerMovementFSM stateMachine;
-    [SerializeField]
-    private bool paused;
-    private Tile nextTile;
-    [SerializeField]
-    private LineDrawer lineDrawer;
     public string entityName = "Player";
 
     void Start()
@@ -22,7 +16,7 @@ public class PlayerController : MonoBehaviour
         stateMachine.playerTransform = transform;
         ic = gameObject.GetComponent<InventoryController>();
 
-        GameManager.Instance.PlayerReady(this);
+        GameManager.Instance.PlayerReady(this); 
     }
 
     void Update()
@@ -56,11 +50,6 @@ public class PlayerController : MonoBehaviour
 
             return;
         }
-    }
-
-    public void ClearPath()
-    {
-        this.path = null;
     }
 
     public PathEvent getPathChangedEvent()

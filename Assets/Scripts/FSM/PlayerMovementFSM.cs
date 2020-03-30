@@ -27,10 +27,6 @@ public class PlayerMovementFSM
         currentState.EnterState(this);
     }
 
-    public void StartMoving(){
-        TransitionToState(moving);
-    }
-
     public void Tick()
     {
         currentState.Tick(this);

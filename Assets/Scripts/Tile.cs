@@ -38,10 +38,11 @@ public class Tile : MonoBehaviour
 
     public Vector2Int Index { get { return index; } }
 
-    public void AssignTileData(TileSO tileSO)
+    public void AssignTileData(TileSO tileSO, float tileSize)
     {
         this.tile = tileSO;
         neighbours = new List<Tile>();
+        transform.localScale = new Vector3(tileSize, tileSize, tileSize);
         GetComponent<SpriteRenderer>().sprite = tileSO.tileImage;
         GetComponent<SpriteRenderer>().sortingLayerName = "Terrain";
     }

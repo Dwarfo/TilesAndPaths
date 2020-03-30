@@ -8,4 +8,8 @@ public static class Extensions
     {
         return new Vector2Int((int)v.x, (int)v.y);
     }
+    public static Vector2 ToVec2(this Vector2Int v)
+    {
+        return new Vector2Int((int)v.x, (int)v.y);
+    }
 }
