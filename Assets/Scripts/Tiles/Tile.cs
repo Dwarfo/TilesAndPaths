@@ -55,6 +55,7 @@ public class Tile : MonoBehaviour
     public void SetIndex(Vector2Int v)
     {
         this.index = v;
+        gameObject.transform.position = new Vector3Int(this.index.x, this.index.y, 0);
     }
 
     public void AddNeighbour(Tile neighbour)
