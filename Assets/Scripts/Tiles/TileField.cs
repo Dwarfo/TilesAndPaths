@@ -6,7 +6,6 @@ public class TileField : Singleton_MB<TileField>
 {
     [SerializeField]
     TileSO[] tiles;
-    TileTypes[,] tilesPlanar;
     public int xSize;
     public int ySize;
     public float tileSize;
@@ -19,7 +18,7 @@ public class TileField : Singleton_MB<TileField>
 
     void Start()
     {
-        
+        vectorsToTiles = new Dictionary<Vector2Int, Tile>();
     }
 
     // Update is called once per frame
@@ -28,15 +27,19 @@ public class TileField : Singleton_MB<TileField>
 
     }
 
-    public void Process() 
+    public TileSO GetTileTypeByInt(TileTypes type)
     {
-        tilesPlanar = new TileTypes[xSize, ySize];
+        return intToTileTypes[(int)type];
+    }
+
+    public void Process()
+    {
         intToTileTypes = new Dictionary<int, TileSO>();
 
-        AddTilesToDict(); //Adding tiletypes to dictionary for generating map
+        AddTilesToDict(intToTileTypes); //Adding tiletypes to dictionary for generating map
         DebugStructs(); // populating test tilemap tipowoi with int values of tiles
-        DrawTiles(tipowoi); // drawing and instantiating tiles by tipowoi structure
-        SetNeighbours(); // creating a graph structure by assigning neighbours
+        //DrawTiles(tipowoi); // drawing and instantiating tiles by tipowoi structure
+        //SetNeighbours(); // creating a graph structure by assigning neighbours
         //GraphLine();
     }
 
@@ -92,12 +95,33 @@ public class TileField : Singleton_MB<TileField>
             {
                 if ((int)tiles[i][j] != -1)
                 {
-                    var newTile = MakeTile(i, j, (int)tiles[i][j], transform);
+                    var newTile = MakeTile(i, j, (int)tiles[i][j]);
                     vectorsToTiles.Add(newTile.Index, newTile);
                 }
             }
         }
     }
+
+    public void DrawTilesFromMap(MapData mdata)
+    {
+        foreach (TileEntry entry in mdata.tiles)
+        {
+            var newTile = MakeTileFromEntry(entry);
+            vectorsToTiles.Add(newTile.Index, newTile);
+        }
+    }
+
+    public Tile MakeTileFromEntry(TileEntry entry) 
+    {
+        GameObject tile = Instantiate(tilePrefab);
+        tile.transform.SetParent(transform);
+        Tile tileScript = tile.GetComponent<Tile>();
+        tileScript.AssignTileData(intToTileTypes[entry.tileType], tileSize);
+        tileScript.SetIndex(new Vector2Int(entry.xPosition, entry.yPosition));
+        tile.name = "Tile" + tileScript.Index;
+        return tileScript;
+    }
+
 
     public Tile GetTileByIndex(Vector2Int positionIndex) 
     {
@@ -109,7 +133,18 @@ public class TileField : Singleton_MB<TileField>
             return null;
     }
 
-    private void SetNeighbours()
+    public void ClearMap() 
+    {
+        foreach (KeyValuePair<Vector2Int, Tile> tile in vectorsToTiles)
+        {
+            Destroy(tile.Value.gameObject);
+        }
+
+        vectorsToTiles = new Dictionary<Vector2Int, Tile>();
+    }
+
+
+    public void SetNeighbours()
     {
         foreach (Tile t in vectorsToTiles.Values)
         {
@@ -166,10 +201,10 @@ public class TileField : Singleton_MB<TileField>
         }
     }
 
-    private Tile MakeTile(int i, int j, int tileInd, Transform generatorGo)
+    public Tile MakeTile(int i, int j, int tileInd/*, Transform generatorGo*/)
     {
         GameObject tile = Instantiate(tilePrefab);
-        tile.transform.SetParent(generatorGo);
+        tile.transform.SetParent(transform);
         Tile tileScript = tile.GetComponent<Tile>();
         tileScript.AssignTileData(intToTileTypes[tileInd], tileSize);
         tileScript.SetIndex(i, j);
@@ -191,10 +226,10 @@ public class TileField : Singleton_MB<TileField>
         }
     }
 
-    private void AddTilesToDict()
+    private void AddTilesToDict(Dictionary<int, TileSO> dict)
     {
         foreach (var tile in tiles)
-            intToTileTypes.Add((int)tile.tileType, tile);
+            dict.Add((int)tile.tileType, tile);
     }
 
     private void CalculateHeuristics(Tile start)
