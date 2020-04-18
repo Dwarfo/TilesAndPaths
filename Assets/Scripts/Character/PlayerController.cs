@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     public PlayerMovementFSM stateMachine;
     public string entityName = "Player";
 
+    private float pixelsOffset = 0;
+
     void Start()
     {
         stateMachine = new PlayerMovementFSM();
@@ -24,7 +26,7 @@ public class PlayerController : MonoBehaviour
         stateMachine.Tick();
         if (Input.GetMouseButtonDown(0))
         {
-            stateMachine.SetPath(TileField.Instance.IndexOfPosition(transform.position), TileField.Instance.IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
+            stateMachine.SetPath(TileField.IndexOfPosition(transform.position, pixelsOffset), TileField.IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), pixelsOffset));
             stateMachine.ProcessInput(PlayerMovementFSM.Inputs.LeftMouseClick);
 
             return;
@@ -60,6 +62,11 @@ public class PlayerController : MonoBehaviour
     public PathEvent getPathEndedEvent()
     {
         return stateMachine.pathEnded;
+    }
+
+    public void SetSettings(SO_GameSettings settings)
+    {
+        this.pixelsOffset = settings.pixelOffset;
     }
 }
 

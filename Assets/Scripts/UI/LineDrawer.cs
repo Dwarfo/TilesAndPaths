@@ -6,6 +6,7 @@ public class LineDrawer : MonoBehaviour
 {
     public LineRenderer lr;
     public LineRenderer rectangleDrawer;
+    public GameObject emptyGo;
 
     void Start()
     {
@@ -15,8 +16,11 @@ public class LineDrawer : MonoBehaviour
 
     private void InitLineDrawers()
     {
-        lr              = AddRenderer(Instantiate(new GameObject(), transform.position, Quaternion.identity), "Line Renderer");
-        rectangleDrawer = AddRenderer(Instantiate(new GameObject(), transform.position, Quaternion.identity), "Rectangle drawer");
+        lr              = AddRenderer(Instantiate(emptyGo, transform), "Line Renderer");
+        lr.positionCount = 0;
+        lr.SetPositions(new Vector3[1]);
+
+        rectangleDrawer = AddRenderer(Instantiate(emptyGo, transform), "Rectangle drawer");
     }
 
     private LineRenderer AddRenderer(GameObject go, string goName) 

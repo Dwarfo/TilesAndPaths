@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileField : Singleton_MB<TileField>
+public class TileField : MonoBehaviour
 {
-    [SerializeField]
-    TileSO[] tiles;
-    public int xSize;
-    public int ySize;
+    
     public float tileSize;
     public GameObject tilePrefab;
     public float pixelsOffset; // Offset to make sure index is counted based on center of each tile
 
+    [SerializeField]
+    private SO_Tile[] tiles;
     private TileTypes[][] tipowoi;
-    private Dictionary<int, TileSO> intToTileTypes;
+    private Dictionary<int, SO_Tile> intToTileTypes;
     private Dictionary<Vector2Int, Tile> vectorsToTiles;
 
     void Start()
@@ -27,16 +26,16 @@ public class TileField : Singleton_MB<TileField>
 
     }
 
-    public TileSO GetTileTypeByInt(TileTypes type)
+    public SO_Tile GetTileTypeByInt(TileTypes type)
     {
         return intToTileTypes[(int)type];
     }
 
     public void Process()
     {
-        intToTileTypes = new Dictionary<int, TileSO>();
+        intToTileTypes = new Dictionary<int, SO_Tile>();
 
-        AddTilesToDict(intToTileTypes); //Adding tiletypes to dictionary for generating map
+        AddTilesToDict(intToTileTypes, tiles); //Adding tiletypes to dictionary for generating map
         DebugStructs(); // populating test tilemap tipowoi with int values of tiles
         //DrawTiles(tipowoi); // drawing and instantiating tiles by tipowoi structure
         //SetNeighbours(); // creating a graph structure by assigning neighbours
@@ -85,23 +84,6 @@ public class TileField : Singleton_MB<TileField>
         tipowoi[1][0] = (TileTypes)2;
     }
 
-    public void DrawTiles(TileTypes[][] tiles)
-    {
-        vectorsToTiles = new Dictionary<Vector2Int, Tile>();
-
-        for (int i = 0; i < tiles.Length; i++)
-        {
-            for (int j = 0; j < tiles[i].Length; j++)
-            {
-                if ((int)tiles[i][j] != -1)
-                {
-                    var newTile = MakeTile(i, j, (int)tiles[i][j]);
-                    vectorsToTiles.Add(newTile.Index, newTile);
-                }
-            }
-        }
-    }
-
     public void DrawTilesFromMap(MapData mdata)
     {
         foreach (TileEntry entry in mdata.tiles)
@@ -111,7 +93,7 @@ public class TileField : Singleton_MB<TileField>
         }
     }
 
-    public Tile MakeTileFromEntry(TileEntry entry) 
+    private Tile MakeTileFromEntry(TileEntry entry) 
     {
         GameObject tile = Instantiate(tilePrefab);
         tile.transform.SetParent(transform);
@@ -201,17 +183,6 @@ public class TileField : Singleton_MB<TileField>
         }
     }
 
-    public Tile MakeTile(int i, int j, int tileInd/*, Transform generatorGo*/)
-    {
-        GameObject tile = Instantiate(tilePrefab);
-        tile.transform.SetParent(transform);
-        Tile tileScript = tile.GetComponent<Tile>();
-        tileScript.AssignTileData(intToTileTypes[tileInd], tileSize);
-        tileScript.SetIndex(i, j);
-        tile.name = "Tile" + tileScript.Index;
-        return tileScript;
-    }
-
     private void WriteDebugNeighbours()
     {
         foreach (var tile in vectorsToTiles.Keys)
@@ -226,7 +197,7 @@ public class TileField : Singleton_MB<TileField>
         }
     }
 
-    private void AddTilesToDict(Dictionary<int, TileSO> dict)
+    public static void AddTilesToDict(Dictionary<int, SO_Tile> dict, SO_Tile[] tiles)
     {
         foreach (var tile in tiles)
             dict.Add((int)tile.tileType, tile);
@@ -316,8 +287,20 @@ public class TileField : Singleton_MB<TileField>
         return tiles[0];
     }
 
-    public Vector2Int IndexOfPosition(Vector3 mp)
+    public static Vector2Int IndexOfPosition(Vector3 mp, float pixelsOffset)
     {
         return new Vector2Int(Mathf.FloorToInt(mp.x + pixelsOffset), Mathf.FloorToInt(mp.y + pixelsOffset));
+    }
+
+    public void SetSettings(SO_GameSettings settings) 
+    {
+        this.tileSize       = settings.tileSize;
+        this.pixelsOffset   = settings.pixelOffset;
+        this.tilePrefab     = settings.tilePrefab;
+
+        if (settings.allTileTypes.Length != 0)
+        {
+            this.tiles = settings.allTileTypes;
+        }
     }
 }

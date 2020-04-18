@@ -34,12 +34,12 @@ public class PlayerIdleState : AbstractState
             }
             else
             {
-                pc.ChangePath(TileField.Instance.GetPath(startIndex.ToInt2(), endIndex.ToInt2()));
+                pc.ChangePath(GameManager.Instance.fieldScript.GetPath(startIndex.ToInt2(), endIndex.ToInt2()));
             }
         }
         else
         {
-            pc.ChangePath(TileField.Instance.GetPath(startIndex.ToInt2(), endIndex.ToInt2()));
+            pc.ChangePath(GameManager.Instance.fieldScript.GetPath(startIndex.ToInt2(), endIndex.ToInt2()));
         }
 
     }

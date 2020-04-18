@@ -45,7 +45,7 @@ public class PlayerPausedState : AbstractState
         }
         else
         {
-            Path newPausedPath = TileField.Instance.GetPath(startIndex.ToInt2(), endIndex.ToInt2());
+            Path newPausedPath = GameManager.Instance.fieldScript.GetPath(startIndex.ToInt2(), endIndex.ToInt2());
             if (newPausedPath == null)
                 return;
             pc.ChangePath(newPausedPath);

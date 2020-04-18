@@ -2,26 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TerrainEditor : Singleton_MB<TerrainEditor>
+public class TerrainEditor : MonoBehaviour
 {
+    public GameObject tilePrefab;
+
     private Vector2Int currentMousePositionIndex;
     private Vector2Int lastDrawnIndex;
-    private TileTypes[,] tileTerrain;
     private int minX;
     private int minY;
     private int maxX;
     private int maxY;
-    private Rect mousePosRectangle;
-    private float rectangleOffset;
+    [SerializeField]
+    private float pixelOffset;
+    private float tileSize;
     [SerializeField]
     private TileTypes currentTileType;
     private Dictionary<Vector2Int, Tile> indexToTileDict;
     public List<Tile> duplicatesToDestroy;
+    private Dictionary<int, SO_Tile> intToTileTypes;
 
     void Start()
     {
         lastDrawnIndex      = new Vector2Int(0, 0);
-        rectangleOffset     = TileField.Instance.tileSize / 2;
+        //rectangleOffset     = TileField.Instance.tileSize / 2;
         indexToTileDict     = new Dictionary<Vector2Int, Tile>();
         duplicatesToDestroy = new List<Tile>();
     }
@@ -29,34 +32,46 @@ public class TerrainEditor : Singleton_MB<TerrainEditor>
     // Update is called once per frame
     void Update()
     {
-        currentMousePositionIndex = TileField.Instance.IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        currentMousePositionIndex = TileField.IndexOfPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), pixelOffset);
         if (lastDrawnIndex != currentMousePositionIndex) 
         {
             lastDrawnIndex = currentMousePositionIndex;
-            UIManager.Instance.lineDrawer.DrawRectangle(lastDrawnIndex, rectangleOffset, rectangleOffset);
+            //redo by event
+            UIManager.Instance.lineDrawer.DrawRectangle(lastDrawnIndex, pixelOffset, pixelOffset);
+            if (Input.GetMouseButton(0))
+            {
+                PutTileInField(currentMousePositionIndex, (int)currentTileType);
+            }
+
         }
 
         if (Input.GetMouseButtonDown(0)) 
         {
             PutTileInField(currentMousePositionIndex, (int)currentTileType);
         }
+
     }
 
     private Rect DrawTileBounds(Vector2Int index) {
         Rect newRectangle   = new Rect();
         newRectangle.center = index.ToVec2();
-        newRectangle.width  = TileField.Instance.xSize;
-        newRectangle.height = TileField.Instance.ySize;
+        newRectangle.width = 5;// TileField.Instance.xSize;
+        newRectangle.height = 5;// TileField.Instance.ySize;
 
         return newRectangle;
     }
 
     public void PutTileInField(Vector2Int position, int tileType) 
     {
-        Tile newTile = TileField.Instance.MakeTile(position.x, position.y, tileType);
+        if (tileType == 0) 
+        {
+            return;
+        }
+        Tile newTile = MakeTile(tilePrefab, intToTileTypes[tileType], position);//GameManager.Instance.fieldScript.MakeTile(position.x, position.y, tileType);//redo
         if (indexToTileDict.ContainsKey(position))
         {
             duplicatesToDestroy.Add(indexToTileDict[position]);
+            indexToTileDict[position].gameObject.SetActive(false);
         }
 
         indexToTileDict[position] = newTile;
@@ -81,6 +96,14 @@ public class TerrainEditor : Singleton_MB<TerrainEditor>
         return md;
     }
 
+    public void SetSettings(SO_GameSettings gameSettings) 
+    {
+        this.pixelOffset = gameSettings.pixelOffset;
+        this.tileSize = gameSettings.tileSize;
+        intToTileTypes = new Dictionary<int, SO_Tile>();
+
+        TileField.AddTilesToDict(intToTileTypes, gameSettings.allTileTypes);
+    }
     public MapData GetEditedMapData() 
     {
         return SerializeArray(indexToTileDict);
@@ -96,5 +119,21 @@ public class TerrainEditor : Singleton_MB<TerrainEditor>
             minY = newTileIndex.y;
         if (maxY < newTileIndex.y)
             maxY = newTileIndex.y;
+    }
+
+    private Tile MakeTile(GameObject tilePrefab, SO_Tile tileData, Vector2Int position)
+    {
+        GameObject tile = Instantiate(tilePrefab);
+        tile.transform.SetParent(transform);
+        Tile tileScript = tile.GetComponent<Tile>();
+        tileScript.AssignTileData(tileData, tileSize);
+        tileScript.SetIndex(position);
+        tile.name = "Tile" + tileScript.Index;
+        return tileScript;
+    }
+
+    public void SetCurrentTileType(TileTypes tileType) 
+    {
+        currentTileType = tileType;
     }
 }

@@ -10,13 +10,15 @@ public class GameManager : Singleton_MB<GameManager>
     public PlayerController pc;
     public InventoryController ic;
     public UsableItem testPot;
-
-    private TerrainEditor editor;
+    public TileField fieldScript;
+    public SO_GameSettings gameSettings;
 
     void Start()
     {
-        TileField.Instance.Process();
-        editor = TerrainEditor.Instance;
+        fieldScript = fieldScript == null ? gameObject.AddComponent<TileField>() : fieldScript;
+        fieldScript.SetSettings(gameSettings);
+        fieldScript.Process();
+
         //testPot.placeInTile(new Vector2Int(2,1));
     }
 
@@ -25,6 +27,7 @@ public class GameManager : Singleton_MB<GameManager>
         PathEvent pathChanged   = pc.getPathChangedEvent();
         PathEvent pathEnded     = pc.getPathEndedEvent();
 
+        pc.SetSettings(gameSettings);
         ic.SubscribeToPathEnded(pathEnded);
         pathChanged.AddListener(HandleChangedPath);
     }
@@ -41,11 +44,7 @@ public class GameManager : Singleton_MB<GameManager>
 
     public void LoadMap() 
     {
-        foreach (Tile tile in editor.duplicatesToDestroy)
-        {
-            Destroy(tile.gameObject);
-        }
-        TileField.Instance.ClearMap();
+        fieldScript.ClearMap();
         string path = Application.persistentDataPath + "/map.mp";
         if (File.Exists(path))
         {
@@ -54,9 +53,9 @@ public class GameManager : Singleton_MB<GameManager>
 
             MapData mapData = bf.Deserialize(stream) as MapData;
             Debug.Log("Mapdata size: " + mapData.tiles.Count);
-            TileField.Instance.DrawTilesFromMap(mapData);
+            fieldScript.DrawTilesFromMap(mapData);
             stream.Close();
-            TileField.Instance.SetNeighbours();
+            fieldScript.SetNeighbours();
         }
         else
         {

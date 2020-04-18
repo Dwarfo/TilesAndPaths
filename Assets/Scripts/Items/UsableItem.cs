@@ -17,7 +17,7 @@ public class UsableItem : MonoBehaviour, IUsable, IPickable
     }
     public void placeInTile(Vector2Int positionIndex) 
     {
-        Tile t = TileField.Instance.GetTileByIndex(positionIndex);
+        Tile t = GameManager.Instance.fieldScript.GetTileByIndex(positionIndex);
         t.SetPickable(this);
         gameObject.transform.position = new Vector3Int(positionIndex.x, positionIndex.y, 0);
     }

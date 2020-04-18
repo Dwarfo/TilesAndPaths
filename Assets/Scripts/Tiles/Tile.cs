@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public TileSO tile;
+    public SO_Tile tile;
     public bool invalid = false;
 
     private Vector2Int index;
@@ -38,7 +38,7 @@ public class Tile : MonoBehaviour
 
     public Vector2Int Index { get { return index; } }
 
-    public void AssignTileData(TileSO tileSO, float tileSize)
+    public void AssignTileData(SO_Tile tileSO, float tileSize)
     {
         this.tile = tileSO;
         neighbours = new List<Tile>();
